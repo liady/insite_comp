@@ -125,6 +125,7 @@
             $(".afp_container").on("click.act",".userNameDiv", function(){
                 var victimId = $(this).attr("id");
                 $(".prankSelector").attr("data-victim",victimId);
+                $(".forPrank").text($(this).text());
                 $(".prankSelector").addClass("openPrank");
                 
             });
@@ -172,7 +173,8 @@
             "gray" : doGray,
             "blur" : doBlur,
             "cage" : doCage,
-            "shake" : doShake
+            "shake" : doShake,
+            "flip" : doFlip
         };
         (actionslist[actionRef]||$.noop)(params);
     }
@@ -208,9 +210,18 @@
         },14000);
     }
 
+    function doFlip(){
+        clearTimeout(touts.flip);
+        $(".dmInner").addClass("rotated");
+        touts.flip = setTimeout(function(){
+            hideNotification();
+            $(".dmInner").removeClass("rotated");
+        },14000);
+    }
+
     function doCage(){
         clearTimeout(touts.cage);
-        $("img").each(function(i,e){
+        $("img:not(#aprilFoolsPrankster *)").each(function(i,e){
             var w = $(e).width();
             var h = $(e).height();
             if($(e).attr("old_src"))
@@ -218,7 +229,7 @@
             $(e).attr("old_src",$(e).attr("src"));
             $(e).attr("src","http://www.placecage.com/"+w+"/"+h);
         });
-        $("*").each(function(i,e){
+        $("*:not(#aprilFoolsPrankster *)").each(function(i,e){
             if(!$(e).css("background-image") || $(e).css("background-image")=="none" || $(e).attr("old_bg")) return;
             var w = $(e).width();
             var h = $(e).height();
@@ -283,7 +294,7 @@
 
     function doShake(){
         setTimeout(function(){
-            $("div:not(#aprilFoolsPrankster *,#aprilFoolsPrankster)").jshaker({
+            $("#site_content, #site_content div:not(#aprilFoolsPrankster *,#aprilFoolsPrankster)").jshaker({
                 duration: 10
             });
         },500);
