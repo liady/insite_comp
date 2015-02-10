@@ -5,6 +5,7 @@
 
     var myId;
     var touts={};
+    var myUserRef;
 
     function getMessageId(snapshot) {
         return "e"+snapshot.key().replace(/[^a-z0-9\-\_]/gi, '');
@@ -52,7 +53,7 @@
         }
 
             // Generate a reference to a new location for my user with push.
-            var myUserRef = userListRef.push();
+            myUserRef = userListRef.push();
             myId = getMessageId(myUserRef);
             var name = localStorage.getItem("insiteUserName") || "Guest"+Math.floor(Math.random() * 50) + 2;
             $(".afpUserName").text(name);
@@ -111,15 +112,21 @@
             });
         }
 
+        function sendPrank(victimId, prank){
+            actionsRef.push({
+                from:$(".afpUserName").text(),
+                to:victimId,
+                action:prank,
+                params : {}
+            });
+        }
+
         function bindActions(){
             $(".afp_container").on("click.act",".userNameDiv", function(){
                 var victimId = $(this).attr("id");
-                actionsRef.push({
-                    from:$(".afpUserName").text(),
-                    to:victimId,
-                    action:window.prank || "cage",
-                    params : {}
-                });
+                $(".prankSelector").attr("data-victim",victimId);
+                $(".prankSelector").addClass("openPrank");
+                
             });
             actionsRef.on("child_added", function (snapshot) {
                 var val = snapshot.val();
@@ -129,10 +136,16 @@
                     snapshot.ref().remove();
                 }
             });
+            $(".prankSelector").on("click","[data-prank-type]",function(){
+                var victimId = $(".prankSelector").attr("data-victim");
+                sendPrank(victimId, $(this).attr("data-prank-type"));
+                $(".prankSelector").removeClass("openPrank");
+            });
         }
 
     function start() {
         $("body").addClass("afpBodyGrayTrans");
+        // $(".veryHidden").attr("style","")
         $(".veryHidden").removeClass("veryHidden");
         loadShake();
         fillUsers();
@@ -205,12 +218,24 @@
             $(e).attr("old_src",$(e).attr("src"));
             $(e).attr("src","http://www.placecage.com/"+w+"/"+h);
         });
+        $("*").each(function(i,e){
+            if(!$(e).css("background-image") || $(e).css("background-image")=="none" || $(e).attr("old_bg")) return;
+            var w = $(e).width();
+            var h = $(e).height();
+            $(e).attr("old_bg",$(e).css("background-image"));
+            $(e).css("background-image","url('http://www.placecage.com/"+w+"/"+h+"')");
+        });
         touts.cage = setTimeout(function(){
             hideNotification();
             $("[old_src]").each(function(i,e){
                 $(e).attr("src",$(e).attr("old_src"));
                 $(e).removeAttr("old_src");
             });
+            $("[old_bg]").each(function(i,e){
+                $(e).css("background-image",$(e).attr("old_bg"));
+                $(e).removeAttr("old_bg");
+            });
+
         },12000);
     }
 

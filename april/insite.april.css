@@ -15,7 +15,7 @@
     height: 248px;
     top: 90px;
     position: fixed;
-    z-index:2;
+    z-index:99999999;
     -webkit-filter: none!important;filter: none!important;
     left:10px;
     transform: translateY(0);
